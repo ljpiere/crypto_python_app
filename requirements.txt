@@ -1,0 +1,5 @@
+rx
+requests
+channels-redis
+channels
+python-dotenv
