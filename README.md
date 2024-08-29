@@ -1,5 +1,43 @@
 # Programación Reactiva: Monitor de Precios de Criptomonedas en Tiempo Real
 
+## Descripción de la prueba
+
+Esta prueba implementa una aplicación sencilla para monitorear precios de criptomonedas en tiempo real utilizando un enfoque de programación reactiva. La prueba incluye la obtención de datos de una API de criptomonedas y la visualización de esos datos en una interfaz gráfica construida con Tkinter.
+
+## Objetivo(s) de la prueba
+
+1. **Demostrar el uso de la programación reactiva** en la actualización continua de datos en tiempo real.
+2. **Implementar una interfaz gráfica** simple para la visualización de los precios de criptomonedas.
+3. **Probar la capacidad de respuesta y robustez** del sistema frente a fallas de conexión o datos incorrectos.
+
+## Pasos implementados para llevar a cabo la prueba
+
+1. **Obtención de datos de la API**:
+   - Se realiza una solicitud GET a la API de CoinGecko para obtener los precios actuales de Bitcoin (BTC), Ethereum (ETH) y Ripple (XRP) en USD.
+   - Los datos obtenidos se procesan y se transforman en un diccionario con los precios específicos de cada criptomoneda.
+   - En caso de error durante la solicitud, se maneja la excepción y se devuelven valores predeterminados.
+
+2. **Configuración de la interfaz gráfica**:
+   - Se crea una ventana utilizando Tkinter con un título y una etiqueta inicial.
+   - Se añade un botón para cerrar la aplicación.
+
+3. **Flujo de datos reactivo**:
+   - Se inicia un flujo de datos utilizando `rx.interval` que emite eventos a intervalos regulares (7 segundos).
+   - Cada evento desencadena una solicitud a la API para obtener los precios de las criptomonedas.
+   - Los precios obtenidos se comparan con los datos previos y, si han cambiado, se actualizan en la interfaz gráfica.
+   - Todo este proceso se realiza en un hilo separado para evitar bloquear la interfaz gráfica.
+
+## Tecnologías usadas en la prueba
+
+- **Lenguaje de programación**: Python
+- **Librerías**:
+  - **`rxpy`**: Para implementar programación reactiva.
+  - **`requests`**: Para realizar solicitudes HTTP a la API de CoinGecko.
+  - **`tkinter`**: Para construir la interfaz gráfica de usuario.
+  - **`threading`**: Para manejar la ejecución en segundo plano de tareas largas sin bloquear la interfaz gráfica.
+
+## Explicación del código
+
 ## Importaciones
 
 ```python
@@ -126,3 +164,18 @@ if __name__ == "__main__":
 - Crea la ventana principal de Tkinter
 - Inicializa la aplicación CryptoApp
 - Inicia el bucle principal de la interfaz gráfica
+
+## Resultados
+
+- La aplicación logra actualizar los precios de las criptomonedas en la interfaz gráfica en intervalos de 7 segundos.
+- Los cambios en los precios se reflejan correctamente cuando estos difieren de los valores anteriores.
+- La interfaz gráfica sigue siendo responsiva durante la ejecución, permitiendo cerrar la aplicación sin problemas.
+
+## Conclusiones
+
+- **Eficacia de la programación reactiva**: El uso de programación reactiva simplificó la actualización continua de los precios de criptomonedas y mejoró la eficiencia de la aplicación.
+- **Robustez frente a errores**: La aplicación maneja adecuadamente los errores de red y las respuestas inesperadas de la API, mostrando valores predeterminados en caso de fallos.
+- **Interfaz gráfica simple pero efectiva**: Aunque sencilla, la interfaz gráfica proporciona una visualización clara y oportuna de los datos.
+
+
+
