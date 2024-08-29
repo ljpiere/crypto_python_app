@@ -22,6 +22,11 @@ from threading import Thread
 
 ```python
 def get_crypto_prices():
+    """Función para obtener precios de criptomonedas
+
+    Returns:
+        dictionary: Data de consulta de la API.
+    """
     try:
         response = requests.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,ripple&vs_currencies=usd')
         data = response.json()
@@ -51,11 +56,11 @@ class CryptoApp:
         self.root = root
         self.root.title("Crypto Price Monitor")
         
-        # Etiqueta para mostrar los precios filtrados
+        # Creamos una etiqeuta
         self.label = tk.Label(root, text="Initializing...", font=("Helvetica", 16))
         self.label.pack(pady=20)
         
-        # Botón para salir de la aplicación
+        # Un botón para terminar ejecución de la APP
         self.exit_button = tk.Button(root, text="Exit", command=root.quit)
         self.exit_button.pack(pady=20)
         
@@ -75,22 +80,23 @@ def start_data_stream(self):
     def run():
         # Fuente de datos reactiva (observable)
         prices_stream = rx.interval(7.0).pipe(
-            ops.map(lambda _: get_crypto_prices()),  # Obtención de datos de la API cada 7 segundos
-            ops.distinct_until_changed(),            # Emitir solo si hay un cambio en los datos
+            ops.map(lambda _: get_crypto_prices()),  # Podemos cambiar tiempo entre solicites
+            ops.distinct_until_changed(),            # Lanzar alerta si encuentra cambios
         )
-        
+            
         # Procesamiento y salida en la interfaz gráfica
         prices_stream.pipe(
             ops.flat_map(lambda prices: rx.from_([prices])), # Convertir dict a flujo
-            ops.map(lambda prices: {k: v for k, v in prices.items() if v > 100}),  # Filtrar precios mayores a 100 USD
+            ops.map(lambda prices: {k: v for k, v in prices.items() if v > 100}),  #Filtramos precios a mayor 100 USD
             ops.map(lambda prices: f"Filtered Prices: {prices}")
         ).subscribe(
             on_next=lambda x: self.update_label(x),
             on_error=lambda e: print(f"Error: {e}"),
             on_completed=lambda: print("Completed!")
         )
-    
-    # Iniciar el flujo de datos en un hilo separado para no bloquear la GUI
+        
+    # Iniciamos el hilo de ejecuciond e la API separado de la interfaz
+    # para evitar problemas de rendimiento
     Thread(target=run).start()
 ```
 
