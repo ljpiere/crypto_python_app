@@ -6,12 +6,23 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-# Función para obtener la temperatura actual de una ciudad desde la API de OpenWeatherMap
 def get_weather_data(city, api_key):
+    """Función para obtener la temperatura actual de una ciudad desde la API de OpenWeatherMap
+
+    Args:
+        city (string): Nombre de la ciudad
+        api_key (string): Token de conexión a la API
+
+    Raises:
+        ValueError: Se crea una excepcion en caso de problemas de conexión a la API
+
+    Returns:
+        string: Temperatura al momento de realizar la peticion POST
+    """
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&units=metric&appid={api_key}"
     try:
         response = requests.get(url)
-        response.raise_for_status()  # Levanta una excepción para códigos de estado HTTP no exitosos
+        response.raise_for_status()  #Levantamos una excepcion
         data = response.json()
         if "main" in data and "temp" in data["main"]:
             return data["main"]["temp"]
@@ -19,18 +30,33 @@ def get_weather_data(city, api_key):
             raise ValueError(f"Invalid response structure: {data}")
     except (requests.exceptions.RequestException, ValueError) as e:
         print(f"Error fetching weather data: {e}")
-        return None  # Retorna None si hay un error
+        return None  #Devolvemos NONE en caso de no recibir informacion
 
-# Observable que emite la temperatura en intervalos regulares
 def temperature_stream(city, api_key, interval=5):
+    """Observable que emite la temperatura en intervalos regulares
+
+    Args:
+        city (string): Nombre de la ciudad
+        api_key (string): Token de conexión a la API
+        interval (int, optional): Intervalos regulares de consulta a la API. Defaults to 5.
+
+    Returns:
+        string : Temp promedio de la ciudad a consultar
+    """
     return rx.interval(interval).pipe(
         ops.map(lambda _: get_weather_data(city, api_key)),
         ops.filter(lambda temp: temp is not None),  # Filtra valores None
-        ops.distinct_until_changed()  # Emite solo si la temperatura cambia
+        ops.distinct_until_changed()  # El observable emite señal solo si hay cambio de temperatura
     )
 
-# Función principal que ejecuta el sistema de alertas
 def run_weather_alert_system(city, api_key, interval=10):
+    """Función principal que ejecuta el sistema de alertas
+
+    Args:
+        city (string): Nombre de la ciudad
+        api_key (string): Token de conexión a la API
+        interval (int, optional): Intervalos regulares de ejecución. Defaults to 10.
+    """
     stream = temperature_stream(city, api_key, interval)
 
     # Suscripción al observable para recibir alertas al mínimo cambio
@@ -46,6 +72,6 @@ def run_weather_alert_system(city, api_key, interval=10):
 
 # Ejecución del sistema de monitoreo
 if __name__ == "__main__":
-    city = "London,uk"  # Puedes cambiar esta ciudad a la que desees monitorear
-    api_key = os.getenv('API_TOKEN')  # Reemplaza con tu API Key de OpenWeatherMap
+    city = "London,uk"  # Editar ciudad
+    api_key = os.getenv('API_TOKEN')  # El token se carga como variable del sistema
     run_weather_alert_system(city, api_key, interval=10)
