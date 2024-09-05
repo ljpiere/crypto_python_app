@@ -45,7 +45,7 @@ class CryptoApp:
     def start_data_stream(self):
         def run():
             # Fuente de datos reactiva (observable)
-            prices_stream = rx.interval(7.0).pipe(
+            prices_stream = rx.interval(10.0).pipe(
                 ops.map(lambda _: get_crypto_prices()),  # Podemos cambiar tiempo entre solicites
                 ops.distinct_until_changed(),            # Lanzar alerta si encuentra cambios
             )
